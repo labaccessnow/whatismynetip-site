@@ -270,6 +270,7 @@ code{background:#0a1326;border:1px solid var(--line);border-radius:6px;padding:.
     <h3>🔌 Port checker <span class="badge live">live</span></h3>
     <p>Is a TCP port open on <b>your</b> public IP? We connect back to you from our server — ideal for verifying port-forwards and self-hosted services.</p>
     <label>Port</label><input id="pc-port" class="mono" placeholder="443" value="443" inputmode="numeric">
+    <div id="pc-ts" style="height:0;overflow:hidden;transform:scale(.85);transform-origin:0 0"></div>
     <button class="btn" id="pc-go">Check my port</button>
     <div class="out" id="pc-out"></div>
   </div>
@@ -278,13 +279,11 @@ code{background:#0a1326;border:1px solid var(--line);border-radius:6px;padding:.
     <h3>🔒 SSL / cert checker <span class="badge live">live</span></h3>
     <p>Inspect any site's TLS certificate — issuer, expiry, SANs and protocol.</p>
     <label>Hostname</label><input id="sc-host" class="mono" placeholder="example.com" value="whatismynetip.com">
+    <div id="sc-ts" style="height:0;overflow:hidden;transform:scale(.85);transform-origin:0 0"></div>
     <button class="btn" id="sc-go">Check certificate</button>
     <div class="out" id="sc-out"></div>
   </div>
 </div>
-<!-- One shared invisible Turnstile for both server-side checks; solves on load, so the
-     buttons stay one-click for humans. -->
-<div id="tool-ts" style="height:0;overflow:hidden"></div>
 
 <section class="cta" id="engineers">
   <h2>🛰️ Run a real network? These go deeper.</h2>
@@ -524,31 +523,57 @@ $('pw-go').onclick=function(){
 
 /* ---------- Live probes (our server-side backend) ---------- */
 /* POST-only and Turnstile-signed: these run for this page, not for anyone with the URL.
-   Tokens are single-use, so reset the widget right after spending one. */
+   Two things measured the hard way: a Turnstile token is single-use, and re-solving after a
+   reset took ~14s on this widget. So each check owns its OWN widget — a shared one meant the
+   two tools fought over one token and whichever lost got a 403 — and a repeat run waits for
+   the fresh token instead of firing an empty one, saying so rather than looking broken. */
 var PROBE='https://probe.whatismynetip.com';
-async function probePost(path,body){
-  body.turnstile=tsToken(tsTool); tsReset(tsTool);
+function tsWait(id,onWait){
+  return new Promise(function(resolve){
+    if(tsToken(id)) return resolve(tsToken(id));   // usual case: solved on page load already
+    if(onWait) onWait();
+    var deadline=Date.now()+25000;
+    (function poll(){
+      var t=tsToken(id);
+      if(t||Date.now()>deadline) return resolve(t);
+      setTimeout(poll,200);
+    })();
+  });
+}
+async function probePost(path,body,widget,outId,pending){
+  body.turnstile=await tsWait(widget,function(){
+    show(outId,'Running the bot check first — this takes a few seconds…');
+  });
+  if(!body.turnstile) return {error:'Bot check didn’t finish. Reload the page and try again.'};
+  show(outId,pending);
   var r=await fetch(PROBE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return await r.json().catch(function(){return {error:'Probe unavailable.'};});
+  tsReset(widget);   // spend it; the widget starts re-solving for the next run
+  /* the edge wraps non-2xx in an HTML error page, so status is the only usable signal */
+  return await r.json().catch(function(){
+    return {error: r.status===403
+      ? 'Bot check was rejected — wait a moment and try again.'
+      : 'Probe unavailable.'};
+  });
 }
 $('pc-go').onclick=async function(){
   var port=parseInt(($('pc-port').value||'').trim(),10);
   if(!(port>=1&&port<=65535)){ show('pc-out','<span class="err">Enter a port 1–65535.</span>'); return; }
-  show('pc-out','Connecting back to you on port '+port+'…');
+  this.disabled=true;   // one token per run; a double-click would waste it
   try{
-    var d=await probePost('/port',{port:port});
+    var d=await probePost('/port',{port:port},tsPC,'pc-out','Connecting back to you on port '+port+'…');
     if(d.error){ show('pc-out','<span class="err">'+d.error+'</span>'); return; }
     show('pc-out',(d.open?'<b>✓ OPEN</b>':'<b class="err">✗ CLOSED / filtered</b>')+
       ' — port <b>'+d.port+'</b> on <span class="mono">'+d.ip+'</span><br><span class="sub">'+
       (d.open?'Reachable from the public internet.':'Nothing is accepting connections here (or a firewall is dropping them).')+'</span>');
   }catch(e){ show('pc-out','<span class="err">Probe unavailable.</span>'); }
+  finally{ this.disabled=false; }
 };
 $('sc-go').onclick=async function(){
   var host=($('sc-host').value||'').trim();
   if(!host){ show('sc-out','<span class="err">Enter a hostname.</span>'); return; }
-  show('sc-out','Checking certificate…');
+  this.disabled=true;
   try{
-    var d=await probePost('/ssl',{host:host});
+    var d=await probePost('/ssl',{host:host},tsSC,'sc-out','Checking certificate…');
     if(d.valid===false){ show('sc-out','<b class="err">⚠ Invalid</b> — '+(d.error||'certificate problem')); return; }
     if(d.error){ show('sc-out','<span class="err">'+d.error+'</span>'); return; }
     var warn=(d.days_left!=null&&d.days_left<=14);
@@ -561,18 +586,31 @@ $('sc-go').onclick=async function(){
     h+='<div class="sub" style="margin-top:.55rem">Want an alert before this expires? → <a href="https://driftwatch.labaccessnow.com" target="_blank" rel="noopener" style="color:var(--accent2)">CertHerd</a></div>';
     show('sc-out',h);
   }catch(e){ show('sc-out','<span class="err">Probe unavailable.</span>'); }
+  finally{ this.disabled=false; }
 };
 
 /* ---------- DDNS + short link (call the Worker; degrade gracefully) ---------- */
-/* Turnstile anti-bot: two explicit widgets (one per form). Managed mode — invisible for
-   most humans. The token rides in the POST body; the Worker verifies it server-side. */
-var TS_SITEKEY='0x4AAAAAAD23YSrzbsXuJoD6', tsDD=null, tsSH=null, tsTool=null;
+/* Turnstile anti-bot: one explicit widget PER form or tool. Managed mode — invisible for most
+   humans. Sharing a widget does not work: tokens are single-use, so two features on one
+   widget race for the same token and the loser gets a 403. The token rides in the POST body
+   and is verified server-side. Each render is separate so one failure cannot take the rest
+   down with it. */
+var TS_SITEKEY='0x4AAAAAAD23YSrzbsXuJoD6', tsDD=null, tsSH=null, tsPC=null, tsSC=null;
 window.onTurnstile=function(){
-  try{
-    tsDD=turnstile.render('#dd-ts',{sitekey:TS_SITEKEY});
-    tsSH=turnstile.render('#sh-ts',{sitekey:TS_SITEKEY});
-    tsTool=turnstile.render('#tool-ts',{sitekey:TS_SITEKEY});
-  }catch(e){}
+  /* The two probe widgets start collapsed — auto-passing visitors would otherwise stare at an
+     empty 60px gap in each panel. Collapsed is only safe because before-interactive-callback
+     opens the box when Turnstile actually wants the visitor to DO something: a widget hidden
+     with no way to reveal it would leave a challenged user permanently stuck. */
+  var w=[['#dd-ts',function(x){tsDD=x;},0],['#sh-ts',function(x){tsSH=x;},0],
+         ['#pc-ts',function(x){tsPC=x;},1],['#sc-ts',function(x){tsSC=x;},1]];
+  w.forEach(function(p){
+    var opt={sitekey:TS_SITEKEY}, el=document.querySelector(p[0]);
+    if(p[2]&&el){
+      opt['before-interactive-callback']=function(){ el.style.height='auto'; el.style.margin='.6rem 0 .2rem'; };
+      opt['callback']=function(){ el.style.height='0'; el.style.margin='0'; };
+    }
+    try{ p[1](turnstile.render(p[0],opt)); }catch(e){}
+  });
 };
 function tsToken(id){ try{ return turnstile.getResponse(id)||''; }catch(e){ return ''; } }
 function tsReset(id){ try{ turnstile.reset(id); }catch(e){} }
