@@ -1,0 +1,4 @@
+Contact: https://labaccessnow.com/#contact
+Expires: 2027-07-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://whatismynetip.com/.well-known/security.txt

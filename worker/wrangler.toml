@@ -1,0 +1,37 @@
+name = "netip-edge"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+# Branded custom domains below; workers.dev URL disabled (no personal name in the URL).
+workers_dev = false
+
+# Workers KV — created with `wrangler kv namespace create netip`; id filled in below.
+kv_namespaces = [
+  { binding = "KV", id = "<your-kv-namespace-id>" },
+]
+
+# Daily expiry sweep: reaps DDNS hosts with no update in 90 days (DNS record + KV).
+# Short links need no sweep — they carry a 1-year KV expirationTtl.
+[triggers]
+crons = ["17 6 * * *"]
+
+[vars]
+CF_ZONE_ID = "<your-cloudflare-zone-id>"
+ZONE_NAME  = "whatismynetip.com"
+
+# Runtime secret (NOT here) — the CF DNS:Edit token the Worker uses to create/patch
+# *.whatismynetip.com A records for Dynamic DNS. Set with:
+#   echo -n "<cloudflare_all api_token>" | wrangler secret put CF_API_TOKEN
+
+# --- Custom domains (LIVE, attached out-of-band in the CF dashboard) ---
+#   api.whatismynetip.com  -> /ip /json /rbl /headers /register /nic/update /update /shorten
+#   s.whatismynetip.com    -> short links
+# Both verified serving this Worker 2026-07-31. They are NOT declared here on purpose:
+# the deploy token (cloudflare_workers) is Account: Workers Scripts + KV only, so a
+# `routes` block would make `wrangler deploy` fail on missing Workers Routes Edit +
+# Zone edit. If the token is ever widened, move them into config with:
+#   routes = [
+#     { pattern = "api.whatismynetip.com", custom_domain = true },
+#     { pattern = "s.whatismynetip.com",   custom_domain = true },
+#   ]
+# The Worker is origin-relative, so it works unchanged on any of those hostnames.

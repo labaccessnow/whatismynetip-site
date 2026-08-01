@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What Is My Net IP? — IP, Dynamic DNS, Short Links & Network Tools</title>
+<meta name="description" content="See your public IP, location, ASN and reverse DNS instantly — plus free Dynamic DNS, IP/URL short links, a subnet calculator and DNS lookup. A no-nonsense toolkit for network engineers.">
+<link rel="canonical" href="https://whatismynetip.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What Is My Net IP? — the network engineer's toolkit">
+<meta property="og:description" content="Public IP + Dynamic DNS + IP/URL short links + subnet & DNS tools. Free.">
+<meta property="og:url" content="https://whatismynetip.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0b1120">
+<meta name="keywords" content="what is my ip, my ip address, public ip, ip lookup, ASN lookup, reverse DNS, dynamic DNS, DDNS, subnet calculator, port checker, SSL checker, network tools">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:site_name" content="What Is My Net IP">
+<meta property="og:image" content="https://whatismynetip.com/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://whatismynetip.com/og.png">
+<!-- Cloudflare Web Analytics (privacy-first, cookieless) -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "c1a5ac3ebae54d639d3fd1dbe8e5f89f"}'></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"What Is My Net IP","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0"},"description":"Public IP, Dynamic DNS, IP/URL short links, subnet calculator and DNS lookup for network engineers."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"What Is My Net IP","url":"https://whatismynetip.com/","description":"See your public IP, location, ASN and reverse DNS instantly — plus free Dynamic DNS, IP/URL short links, subnet calculator, port checker and SSL checker."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is my IP address?","acceptedAnswer":{"@type":"Answer","text":"Your IP (Internet Protocol) address is the unique number your network uses to communicate on the internet. This page shows your public IP — the address the internet sees, assigned by your ISP."}},
+{"@type":"Question","name":"What is the difference between a public and private IP address?","acceptedAnswer":{"@type":"Answer","text":"Your public IP is your router's internet-facing address, shared by every device on your network through NAT. Private IPs such as 192.168.x.x are used only inside your local network and are not reachable from the internet."}},
+{"@type":"Question","name":"Why does my IP address keep changing?","acceptedAnswer":{"@type":"Answer","text":"Most ISPs assign dynamic IP addresses that change periodically. To keep a stable name for a changing IP, use Dynamic DNS (DDNS), which maps a hostname that updates automatically."}},
+{"@type":"Question","name":"What is Dynamic DNS (DDNS)?","acceptedAnswer":{"@type":"Answer","text":"Dynamic DNS gives your ever-changing IP a permanent hostname that updates automatically whenever your IP changes, so you can always reach a home server, camera or NAS by name."}},
+{"@type":"Question","name":"What is an ASN?","acceptedAnswer":{"@type":"Answer","text":"An Autonomous System Number identifies the network operator — usually your ISP — that owns your IP range. For example, AS701 belongs to Verizon."}},
+{"@type":"Question","name":"How do I check if a port is open?","acceptedAnswer":{"@type":"Answer","text":"Use the port checker, which connects back to your public IP from our server to confirm whether a TCP port — for a game server or self-hosted app — is reachable from the internet."}},
+{"@type":"Question","name":"Can my IP address identify me?","acceptedAnswer":{"@type":"Answer","text":"Your IP reveals your approximate location (city level) and your ISP, but not your name or exact address. City-level IP geolocation is often off by tens of kilometres."}},
+{"@type":"Question","name":"How do I hide my IP address?","acceptedAnswer":{"@type":"Answer","text":"A VPN or proxy routes your traffic through another server, so websites see that server's IP instead of yours. The VPN/datacenter check on this page flags whether an IP looks like a VPN or hosting provider."}}
+]}</script>
+<style>
+:root{--bg:#0b1120;--panel:#111a2e;--card:#0f1830;--line:#22304d;--txt:#e8eefc;--mut:#93a4c7;
+  --accent:#38bdf8;--accent2:#34d399;--warn:#fbbf24;--brand:#7c9cff;--bad:#f87171}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt);
+  min-height:100vh;background-image:radial-gradient(900px 500px at 82% -12%,rgba(56,189,248,.14),transparent 60%),
+  radial-gradient(720px 440px at -8% 8%,rgba(52,211,153,.10),transparent 55%);background-attachment:fixed;line-height:1.5}
+a{color:inherit}
+.wrap{max-width:960px;margin:0 auto;padding:0 1.2rem}
+header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 0;flex-wrap:wrap;gap:.6rem}
+.logo{font-weight:800;font-size:1.15rem;letter-spacing:-.01em}
+.logo b{color:var(--accent)}
+.logo .tag{display:block;font-size:.7rem;color:var(--mut);font-weight:600;letter-spacing:.04em}
+nav{display:flex;gap:.3rem;flex-wrap:wrap}
+nav a{font-size:.82rem;color:var(--mut);text-decoration:none;border:1px solid var(--line);padding:.35rem .7rem;border-radius:999px}
+nav a:hover{color:var(--txt);border-color:var(--accent)}
+.hero{background:linear-gradient(180deg,var(--panel),var(--card));border:1px solid var(--line);border-radius:20px;
+  padding:1.8rem 1.6rem;margin-top:.4rem;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.hero h1.h1{font-size:clamp(1.2rem,3vw,1.55rem);font-weight:800;letter-spacing:-.01em;margin-bottom:.2rem}
+.hero h1.h1 span{color:var(--accent)}
+.hero .lead{color:var(--mut);font-size:.92rem;margin-bottom:1.1rem;max-width:62ch}
+.hero .lbl{font-size:.8rem;color:var(--mut);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.faq{margin-top:2rem}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 1.1rem;margin-bottom:.6rem}
+.faq summary{cursor:pointer;font-weight:700;padding:.95rem 0;list-style:none;font-size:.97rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";float:right;color:var(--accent);font-weight:800}
+.faq details[open] summary::after{content:"–"}
+.faq details[open] summary{border-bottom:1px solid var(--line)}
+.faq p{color:var(--mut);font-size:.9rem;padding:.85rem 0 1rem;line-height:1.6}
+.iprow{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;margin:.4rem 0 .2rem}
+#ip{font-size:clamp(1.9rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#ip.loading{color:var(--mut)}
+.copy{background:var(--accent);color:#04121f;font-weight:800;border:0;border-radius:10px;padding:.55rem .9rem;cursor:pointer;font-size:.9rem}
+.copy:hover{filter:brightness(1.08)}
+.v6{font-size:.9rem;color:var(--mut);word-break:break-all}
+.v6 b{color:var(--txt);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.9rem;margin-top:1.2rem}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem}
+.tile .k{font-size:.72rem;color:var(--mut);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.tile .val{font-size:1.05rem;font-weight:700;margin-top:.25rem;word-break:break-word}
+.tile .sub{font-size:.82rem;color:var(--mut);margin-top:.15rem}
+h2.sec{font-size:1.3rem;margin:2rem 0 .3rem;letter-spacing:-.01em}
+.sub{color:var(--mut);font-size:.9rem}
+.toolgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem;margin-top:1rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;scroll-margin-top:1rem}
+.panel h3{font-size:1.05rem;display:flex;align-items:center;gap:.5rem}
+.badge{font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.15rem .45rem;border-radius:6px}
+.badge.live{background:rgba(52,211,153,.16);color:var(--accent2)}
+.badge.beta{background:rgba(251,191,36,.16);color:var(--warn)}
+.badge.soon{background:rgba(147,164,199,.14);color:var(--mut)}
+.panel p{color:var(--mut);font-size:.88rem;margin:.4rem 0 .7rem}
+label{display:block;font-size:.75rem;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:.5rem 0 .2rem}
+input,select{width:100%;background:#0a1326;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:.6rem .7rem;font-size:.95rem;font-family:inherit}
+input:focus,select:focus{outline:0;border-color:var(--accent)}
+.btn{margin-top:.7rem;background:var(--accent);color:#04121f;font-weight:800;border:0;border-radius:10px;padding:.6rem 1rem;cursor:pointer;font-size:.9rem}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.out{margin-top:.8rem;font-size:.88rem;background:#0a1326;border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;white-space:pre-wrap;word-break:break-word;display:none}
+.out.show{display:block}
+.out b{color:var(--accent2)}
+.kv{display:flex;justify-content:space-between;gap:1rem;padding:.15rem 0;border-bottom:1px dashed rgba(255,255,255,.06)}
+.kv:last-child{border-bottom:0}.kv span:first-child{color:var(--mut)}
+.row{display:flex;gap:.5rem;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+.cta{margin-top:2rem;background:linear-gradient(90deg,rgba(124,156,255,.14),rgba(56,189,248,.10));
+  border:1px solid var(--line);border-radius:18px;padding:1.4rem 1.5rem}
+.cta h2{font-size:1.25rem}.cta p{color:var(--mut);margin:.4rem 0 .9rem;max-width:62ch}
+.tools{display:flex;flex-wrap:wrap;gap:.6rem}
+.tool{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .95rem;font-size:.88rem;transition:border-color .12s,transform .12s}
+.tool:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tool b{color:var(--txt)}.tool span{color:var(--mut)}.tool .em{color:var(--accent2)}
+footer{color:var(--mut);font-size:.82rem;text-align:center;padding:2rem 0 2.4rem;line-height:1.7}
+footer a{color:var(--accent)}
+.err{color:var(--warn)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+code{background:#0a1326;border:1px solid var(--line);border-radius:6px;padding:.1rem .35rem;font-size:.85em}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div class="logo">What Is My <b>Net IP</b><span class="tag">IP · dynamic DNS · short links · network tools</span></div>
+  <nav>
+    <a href="#ip-sec">My IP</a><a href="#ddns">Dynamic DNS</a><a href="#short">Short link</a>
+    <a href="#subnet">Subnet calc</a><a href="#dns">DNS lookup</a><a href="#moretools">More tools</a><a href="#probes">Probes</a><a href="#faq">FAQ</a><a href="#engineers">Pro tools</a>
+  </nav>
+</header>
+
+<section class="hero" id="ip-sec">
+  <h1 class="h1">What Is My <span>IP Address</span>?</h1>
+  <p class="lead">Instantly see your public IP address, location, ISP and reverse DNS — plus free Dynamic DNS, short links and network tools for engineers.</p>
+  <div class="lbl">Your public IP address</div>
+  <div class="iprow">
+    <div id="ip" class="loading">detecting…</div>
+    <button class="copy" id="copy" hidden>Copy</button>
+  </div>
+  <div class="v6" id="v6line"></div>
+  <div class="grid" id="detail">
+    <div class="tile"><div class="k">Location</div><div class="val" id="loc">—</div><div class="sub" id="locsub"></div></div>
+    <div class="tile"><div class="k">Network (ASN / ISP)</div><div class="val" id="asn">—</div><div class="sub" id="org"></div></div>
+    <div class="tile"><div class="k">Reverse DNS (PTR)</div><div class="val" id="ptr">—</div><div class="sub">hostname for your IP</div></div>
+    <div class="tile"><div class="k">Connection</div><div class="val" id="type">—</div><div class="sub" id="tz"></div></div>
+  </div>
+</section>
+
+<h2 class="sec">🔍 Privacy &amp; reputation</h2>
+<div class="sub">Automatic checks on your connection — is it exposed, anonymized, or flagged? All run on page load.</div>
+<div class="toolgrid">
+  <div class="panel"><h3>🕵️ VPN / datacenter <span class="badge live">live</span></h3>
+    <p>Does your IP look like a home/office ISP, or a hosting / VPN provider? Inferred from the ASN.</p>
+    <div class="out show" id="vpn-out">checking…</div></div>
+  <div class="panel"><h3>📡 WebRTC leak test <span class="badge live">live</span></h3>
+    <p>Browsers can leak your <b>local</b> IP over WebRTC — even behind a VPN. Runs entirely in your browser.</p>
+    <div class="out show" id="rtc-out">checking…</div></div>
+  <div class="panel"><h3>🛡️ Blacklist (DNSBL) <span class="badge live">live</span></h3>
+    <p>Is your IP on common spam / abuse blocklists?</p>
+    <div class="out show" id="rbl-out">checking…</div></div>
+</div>
+
+<h2 class="sec">🧰 The toolkit</h2>
+<div class="sub">Everything a network engineer reaches for — free, no sign-up for the instant tools.</div>
+
+<div class="toolgrid">
+  <!-- DYNAMIC DNS -->
+  <div class="panel" id="ddns">
+    <h3>🔄 Dynamic DNS <span class="badge beta">beta</span></h3>
+    <p>Give your ever-changing home/office IP a permanent name like <b class="mono">you.whatismynetip.com</b>. Works with any router's built-in DynDNS client (OPNsense, pfSense, UniFi, DD-WRT, ddclient). Hostnames with no update for 90 days are released.</p>
+    <label>Pick a hostname</label>
+    <div class="row" style="align-items:center">
+      <input id="dd-host" placeholder="myhome" autocomplete="off">
+      <div class="sub mono" style="flex:0 0 auto">.whatismynetip.com</div>
+    </div>
+    <label>Email (for your update token)</label>
+    <input id="dd-email" type="email" placeholder="you@example.com" autocomplete="off">
+    <div id="dd-ts" style="margin:.6rem 0 .2rem;transform:scale(.85);transform-origin:0 0"></div>
+    <button class="btn" id="dd-go">Claim hostname</button>
+    <div class="out" id="dd-out"></div>
+  </div>
+
+  <!-- SHORT LINK -->
+  <div class="panel" id="short">
+    <h3>🔗 Short link <span class="badge beta">beta</span></h3>
+    <p>Shorten a long URL — or point a tidy <b class="mono">s.whatismynetip.com/xyz</b> link straight at a raw <b>IP:port</b> (great for home-lab dashboards and quick shares). Links last 1 year; you get a delete token.</p>
+    <label>Destination (URL or IP:port)</label>
+    <input id="sh-url" placeholder="https://… or 203.0.113.7:8123" autocomplete="off">
+    <label>Custom slug (optional)</label>
+    <input id="sh-slug" placeholder="myapp" autocomplete="off">
+    <div id="sh-ts" style="margin:.6rem 0 .2rem;transform:scale(.85);transform-origin:0 0"></div>
+    <button class="btn" id="sh-go">Make short link</button>
+    <div class="out" id="sh-out"></div>
+  </div>
+
+  <!-- SUBNET CALC (client-side, live now) -->
+  <div class="panel" id="subnet">
+    <h3>🧮 Subnet calculator <span class="badge live">live</span></h3>
+    <p>Enter a CIDR — get the network, broadcast, usable host range, mask and host count. Runs entirely in your browser.</p>
+    <label>CIDR (IPv4)</label>
+    <input id="sn-cidr" class="mono" placeholder="10.10.1.0/24" value="10.10.1.0/24">
+    <button class="btn" id="sn-go">Calculate</button>
+    <div class="out" id="sn-out"></div>
+  </div>
+
+  <!-- DNS LOOKUP (client-side DoH, live now) -->
+  <div class="panel" id="dns">
+    <h3>🔎 DNS lookup <span class="badge live">live</span></h3>
+    <p>Query any record type over DNS-over-HTTPS — no server round-trip through us.</p>
+    <div class="row">
+      <input id="dl-name" placeholder="example.com" autocomplete="off">
+      <select id="dl-type" style="flex:0 0 110px">
+        <option>A</option><option>AAAA</option><option>MX</option><option>TXT</option>
+        <option>NS</option><option>CNAME</option><option>CAA</option><option>SOA</option>
+      </select>
+    </div>
+    <button class="btn" id="dl-go">Look up</button>
+    <div class="out" id="dl-out"></div>
+  </div>
+</div>
+
+<h2 class="sec" id="moretools">🧮 More instant tools</h2>
+<div class="sub">Pure browser-side network math &amp; secrets — nothing leaves your machine.</div>
+<div class="toolgrid">
+  <div class="panel" id="incidr">
+    <h3>🎯 IP-in-subnet <span class="badge live">live</span></h3>
+    <p>Is an address inside a CIDR block?</p>
+    <label>IP address</label><input id="ic-ip" class="mono" placeholder="10.10.1.42" value="10.10.1.42">
+    <label>CIDR</label><input id="ic-cidr" class="mono" placeholder="10.10.0.0/16" value="10.10.0.0/16">
+    <button class="btn" id="ic-go">Check</button>
+    <div class="out" id="ic-out"></div>
+  </div>
+
+  <div class="panel" id="ipconv">
+    <h3>🔢 IP converter <span class="badge live">live</span></h3>
+    <p>IPv4 ↔ integer, hex and binary.</p>
+    <label>IPv4, integer, or 0x-hex</label>
+    <input id="cv-in" class="mono" placeholder="192.168.1.1 or 3232235777" value="192.168.1.1">
+    <button class="btn" id="cv-go">Convert</button>
+    <div class="out" id="cv-out"></div>
+  </div>
+
+  <div class="panel" id="ipv6">
+    <h3>🧬 IPv6 expand / compress <span class="badge live">live</span></h3>
+    <p>Full form and shortest (RFC 5952) form of any IPv6 address.</p>
+    <label>IPv6 address</label><input id="v6-in" class="mono" placeholder="2001:db8::1" value="2001:db8::1">
+    <button class="btn" id="v6-go">Format</button>
+    <div class="out" id="v6-out"></div>
+  </div>
+
+  <div class="panel" id="mac">
+    <h3>🏷️ MAC / OUI lookup <span class="badge live">live</span></h3>
+    <p>Vendor + address type from a MAC (common vendors; any format).</p>
+    <label>MAC address</label><input id="mac-in" class="mono" placeholder="B8:27:EB:12:34:56" value="B8:27:EB:12:34:56">
+    <button class="btn" id="mac-go">Look up</button>
+    <div class="out" id="mac-out"></div>
+  </div>
+
+  <div class="panel" id="genpw">
+    <h3>🔑 Password / key generator <span class="badge live">live</span></h3>
+    <p>Cryptographically-random secrets, generated in your browser.</p>
+    <div class="row">
+      <select id="pw-mode">
+        <option value="strong">Strong password</option>
+        <option value="alnum">Letters + numbers</option>
+        <option value="wpa">Wi-Fi (WPA) key</option>
+        <option value="hex">Hex key</option>
+        <option value="pin">Numeric PIN</option>
+      </select>
+      <select id="pw-len" style="flex:0 0 84px" title="length">
+        <option>8</option><option>12</option><option selected>16</option><option>20</option><option>24</option><option>32</option>
+      </select>
+    </div>
+    <button class="btn" id="pw-go">Generate</button>
+    <div class="out" id="pw-out"></div>
+  </div>
+</div>
+
+<h2 class="sec" id="probes">🔌 Live network probes</h2>
+<div class="sub">Real connections originated from our server — the checks a browser or CDN edge can't make.</div>
+<div class="toolgrid">
+  <div class="panel" id="portchk">
+    <h3>🔌 Port checker <span class="badge live">live</span></h3>
+    <p>Is a TCP port open on <b>your</b> public IP? We connect back to you from our server — ideal for verifying port-forwards and self-hosted services.</p>
+    <label>Port</label><input id="pc-port" class="mono" placeholder="443" value="443" inputmode="numeric">
+    <button class="btn" id="pc-go">Check my port</button>
+    <div class="out" id="pc-out"></div>
+  </div>
+
+  <div class="panel" id="sslchk">
+    <h3>🔒 SSL / cert checker <span class="badge live">live</span></h3>
+    <p>Inspect any site's TLS certificate — issuer, expiry, SANs and protocol.</p>
+    <label>Hostname</label><input id="sc-host" class="mono" placeholder="example.com" value="whatismynetip.com">
+    <button class="btn" id="sc-go">Check certificate</button>
+    <div class="out" id="sc-out"></div>
+  </div>
+</div>
+<!-- One shared invisible Turnstile for both server-side checks; solves on load, so the
+     buttons stay one-click for humans. -->
+<div id="tool-ts" style="height:0;overflow:hidden"></div>
+
+<section class="cta" id="engineers">
+  <h2>🛰️ Run a real network? These go deeper.</h2>
+  <p>The free tools above answer "what is it right now." When you manage gear for a living, the money questions are
+     <em>what changed on my configs overnight</em> and <em>why won't this device pass 802.1X</em>:</p>
+  <div class="tools">
+    <a class="tool" href="https://driftwatch.labaccessnow.com" target="_blank" rel="noopener"><b>DriftWatch</b> <span class="em">— config drift, explained</span><br><span>backup + plain-English "what changed & how to revert" + CIS/PCI audit</span></a>
+    <a class="tool" href="https://driftwatch.labaccessnow.com" target="_blank" rel="noopener"><b>NACpilot</b> <span class="em">— 802.1X copilot</span><br><span>pinpoint MAB / EAP / CoA failures from RADIUS logs + switch config</span></a>
+  </div>
+</section>
+
+<h2 class="sec" id="faq">❓ Frequently asked questions</h2>
+<div class="faq">
+  <details><summary>What is my IP address?</summary><p>Your IP (Internet Protocol) address is the unique number your network uses to communicate on the internet. This page shows your <b>public</b> IP — the address the internet sees, assigned by your ISP.</p></details>
+  <details><summary>What's the difference between a public and private IP address?</summary><p>Your public IP is your router's internet-facing address, shared by every device on your network through NAT. Private IPs such as <span class="mono">192.168.x.x</span> are used only inside your local network and aren't reachable from the internet.</p></details>
+  <details><summary>Why does my IP address keep changing?</summary><p>Most ISPs assign <b>dynamic</b> IP addresses that change periodically. To keep a stable name for a changing IP, use Dynamic DNS (DDNS), which maps a hostname that updates automatically.</p></details>
+  <details><summary>What is Dynamic DNS (DDNS)?</summary><p>Dynamic DNS gives your ever-changing IP a permanent hostname that updates automatically whenever your IP changes — so you can always reach a home server, camera or NAS by name. <a href="#ddns" style="color:var(--accent2)">Claim one above.</a></p></details>
+  <details><summary>What is an ASN?</summary><p>An Autonomous System Number identifies the network operator — usually your ISP — that owns your IP range. For example, <span class="mono">AS701</span> belongs to Verizon.</p></details>
+  <details><summary>How do I check if a port is open?</summary><p>Use the <a href="#portchk" style="color:var(--accent2)">port checker</a>, which connects back to your public IP from our server to confirm whether a TCP port — for a game server or self-hosted app — is reachable from the internet.</p></details>
+  <details><summary>Can my IP address identify me?</summary><p>Your IP reveals your approximate location (city level) and your ISP, but not your name or exact address. City-level IP geolocation is often off by tens of kilometres.</p></details>
+  <details><summary>How do I hide my IP address?</summary><p>A VPN or proxy routes your traffic through another server, so websites see that server's IP instead of yours. The VPN/datacenter check on this page flags whether an IP looks like a VPN or hosting provider.</p></details>
+</div>
+
+<footer>
+  Fast, privacy-friendly network tools · we don't store your IP.<br>
+  Have a question or a bug to report? <a href="#" data-eml="aGVsbG9Ad2hhdGlzbXluZXRpcC5jb20=" data-sub="whatismynetip.com — question / bug report">Email us</a> — opens your own mail app; we never show the address on the page (keeps spam bots away).<br>
+  Part of the <b>NetOps</b> toolkit · <span id="year"></span>
+</footer>
+</div>
+
+<script>
+// Point this at the deployed Worker once it's live. Until then, DDNS/short-link show a friendly "not yet" state.
+var API_BASE = 'https://api.whatismynetip.com';
+document.getElementById('year').textContent = new Date().getFullYear();
+document.querySelectorAll('a[data-eml]').forEach(function(a){var e=atob(a.getAttribute('data-eml')),s=a.getAttribute('data-sub');a.href='mailto:'+e+(s?'?subject='+encodeURIComponent(s):'');});
+function $(id){return document.getElementById(id);}
+function setText(id,t){var e=$(id); if(e) e.textContent=t;}
+function show(id,html){var e=$(id); e.innerHTML=html; e.classList.add('show');}
+
+/* ---------- My IP — all data from our own Worker (Cloudflare edge), no third party ---------- */
+var ipEl=$('ip'), copyBtn=$('copy');
+function flagEmoji(cc){ if(!cc||cc.length!==2) return ''; try{
+  var a=0x1F1E6+((cc.charCodeAt(0)|32)-97), b=0x1F1E6+((cc.charCodeAt(1)|32)-97);
+  return String.fromCodePoint(a,b)+' '; }catch(e){ return ''; } }
+(async function(){
+  var d;
+  try{ d = await fetch(API_BASE+'/json',{cache:'no-store'}).then(function(r){return r.json();}); }
+  catch(e){
+    ipEl.classList.remove('loading'); ipEl.textContent='Unavailable';
+    $('v6line').innerHTML='<span class="err">Live lookup unavailable — refresh to retry.</span>';
+    var vx=$('vpn-out'); if(vx) vx.innerHTML='<span class="err">unavailable</span>'; return; }
+  var ip=d.ip;
+  ipEl.classList.remove('loading'); ipEl.textContent=ip; copyBtn.hidden=false;
+  copyBtn.onclick=function(){ navigator.clipboard.writeText(ip).then(function(){copyBtn.textContent='Copied ✓';setTimeout(function(){copyBtn.textContent='Copy';},1400);}); };
+  $('v6line').innerHTML='IP version: <b>IPv'+(d.version||(ip&&ip.indexOf(':')>=0?6:4))+'</b>';
+  setText('loc', flagEmoji(d.country) + ([d.city,d.region].filter(Boolean).join(', ')||'—'));
+  setText('locsub', [d.country,d.postal].filter(Boolean).join(' · '));
+  setText('asn', d.asn?('AS'+d.asn):'—');
+  setText('org', d.as_org||'');
+  setText('type', 'IPv'+(d.version||4)+(d.colo?(' · via '+d.colo):''));
+  setText('tz', d.timezone?('Timezone: '+d.timezone):'');
+  setText('ptr', d.reverse_dns||'none / not set');
+  var vo=$('vpn-out');
+  if(vo){ vo.innerHTML = d.is_hosting
+    ? '<b class="err">⚠ Datacenter / hosting</b> — likely a VPN, proxy or server. <span class="sub">'+(d.as_org||'')+'</span>'
+    : '<b>✓ ISP / residential</b> <span class="sub">'+(d.as_org||'')+(d.asn?(' · AS'+d.asn):'')+'</span>'; }
+})();
+
+/* ---------- WebRTC local-IP leak test (100% client-side) ---------- */
+(function(){
+  var out=$('rtc-out'); if(!out) return;
+  var ips={}, finished=false;
+  function isPriv(x){ return /^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|169\.254\.|fe80:|f[cd])/i.test(x); }
+  function done(){ if(finished) return; finished=true;
+    var list=Object.keys(ips);
+    if(!list.length){ out.innerHTML='<b>✓ No leak detected</b> — your browser didn\'t expose a local IP (mDNS-protected or blocked).'; return; }
+    var priv=list.filter(isPriv), pub=list.filter(function(x){return !isPriv(x);}), h='';
+    if(priv.length) h+='<b class="err">⚠ Local IP exposed:</b> <span class="mono">'+priv.join(', ')+'</span><br><span class="sub">A page could read your internal address via WebRTC.</span>';
+    if(pub.length) h+=(h?'<br>':'')+'<b class="err">⚠ Public IP via WebRTC:</b> <span class="mono">'+pub.join(', ')+'</span>';
+    out.innerHTML=h;
+  }
+  try{
+    var pc=new RTCPeerConnection({iceServers:[]});
+    pc.createDataChannel('x');
+    pc.onicecandidate=function(e){
+      if(!e||!e.candidate){ done(); return; }
+      var m=/([0-9]{1,3}(?:\.[0-9]{1,3}){3})|([a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})/i.exec(e.candidate.candidate);
+      if(m){ var ip=m[0]; if(!/\.local$|^0\.0\.0\.0/i.test(ip)) ips[ip]=1; }
+    };
+    pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).catch(function(){});
+    setTimeout(done, 1800);
+  }catch(e){ out.innerHTML='<span class="sub">WebRTC not available in this browser.</span>'; }
+})();
+
+/* ---------- Blacklist / DNSBL (via our Worker's /rbl) ---------- */
+(async function(){
+  var out=$('rbl-out'); if(!out) return;
+  try{
+    /* POST, not GET: runs automatically on load, so it is Origin-gated rather than
+       Turnstile-gated — a challenge here would block the page's own auto-checks. */
+    var d=await fetch(API_BASE+'/rbl',{method:'POST',cache:'no-store'}).then(function(r){return r.json();});
+    if(d.supported===false){ out.innerHTML='<span class="sub">'+(d.note||'not supported')+'</span>'; return; }
+    var checked=(d.results||[]).filter(function(r){return r.status!=='n/a';});
+    out.innerHTML = d.listed_count>0
+      ? '<b class="err">⚠ Listed on '+d.listed_count+':</b> '+d.listed.join(', ')
+      : '<b>✓ Not listed</b> on '+checked.length+' checked list'+(checked.length===1?'':'s')+'.';
+    var na=(d.results||[]).filter(function(r){return r.status==='n/a';}).map(function(r){return r.bl;});
+    if(na.length) out.innerHTML+='<br><span class="sub">Couldn\'t query from here (need direct DNS): '+na.join(', ')+'</span>';
+  }catch(e){ out.innerHTML='<span class="err">Blacklist check unavailable.</span>'; }
+})();
+
+/* ---------- Subnet calculator (pure client-side) ---------- */
+function ipToInt(ip){var p=ip.split('.');if(p.length!==4)return null;var n=0;for(var i=0;i<4;i++){var o=+p[i];if(isNaN(o)||o<0||o>255)return null;n=(n*256)+o;}return n>>>0;}
+function intToIp(n){return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.');}
+$('sn-go').onclick=function(){
+  var v=$('sn-cidr').value.trim(), m=v.match(/^(\d+\.\d+\.\d+\.\d+)\/(\d+)$/);
+  if(!m){ show('sn-out','<span class="err">Enter a CIDR like 10.10.1.0/24</span>'); return; }
+  var base=ipToInt(m[1]), bits=+m[2];
+  if(base===null||bits<0||bits>32){ show('sn-out','<span class="err">Invalid CIDR.</span>'); return; }
+  var mask = bits===0?0:(0xFFFFFFFF<<(32-bits))>>>0;
+  var net=(base&mask)>>>0, bc=(net|(~mask>>>0))>>>0, total=Math.pow(2,32-bits);
+  var host1 = bits>=31?net:(net+1)>>>0, host2 = bits>=31?bc:(bc-1)>>>0;
+  var usable = bits>=31?total:Math.max(0,total-2);
+  show('sn-out',
+    '<div class="kv"><span>Network</span><b class="mono">'+intToIp(net)+'/'+bits+'</b></div>'+
+    '<div class="kv"><span>Netmask</span><span class="mono">'+intToIp(mask)+'</span></div>'+
+    '<div class="kv"><span>Wildcard</span><span class="mono">'+intToIp(~mask>>>0)+'</span></div>'+
+    '<div class="kv"><span>Broadcast</span><span class="mono">'+intToIp(bc)+'</span></div>'+
+    '<div class="kv"><span>Host range</span><span class="mono">'+intToIp(host1)+' – '+intToIp(host2)+'</span></div>'+
+    '<div class="kv"><span>Usable hosts</span><b>'+usable.toLocaleString()+'</b></div>'+
+    '<div class="kv"><span>Total addresses</span><span>'+total.toLocaleString()+'</span></div>');
+};
+$('sn-go').click();
+
+/* ---------- DNS lookup (DoH) ---------- */
+$('dl-go').onclick=async function(){
+  var name=$('dl-name').value.trim(), type=$('dl-type').value;
+  if(!name){ show('dl-out','<span class="err">Enter a hostname.</span>'); return; }
+  show('dl-out','Looking up…');
+  try{
+    var r=await fetch('https://dns.google/resolve?name='+encodeURIComponent(name)+'&type='+type);
+    var d=await r.json();
+    if(!d.Answer||!d.Answer.length){ show('dl-out','<span class="err">No '+type+' records'+(d.Status?' (status '+d.Status+')':'')+'.</span>'); return; }
+    show('dl-out', d.Answer.map(function(a){return '<div class="kv"><span class="mono">'+(a.name||name)+'</span><b class="mono">'+String(a.data)+'</b></div>';}).join(''));
+  }catch(e){ show('dl-out','<span class="err">Lookup failed.</span>'); }
+};
+
+/* ---------- More instant tools (100% client-side) ---------- */
+/* IP-in-subnet (reuses ipToInt/intToIp from the subnet calc) */
+$('ic-go').onclick=function(){
+  var ip=ipToInt(($('ic-ip').value||'').trim());
+  var m=(($('ic-cidr').value||'').trim()).match(/^(\d+\.\d+\.\d+\.\d+)\/(\d+)$/);
+  if(ip===null||!m){ show('ic-out','<span class="err">Enter a valid IP and CIDR (e.g. 10.10.0.0/16).</span>'); return; }
+  var base=ipToInt(m[1]), bits=+m[2];
+  if(base===null||bits<0||bits>32){ show('ic-out','<span class="err">Invalid CIDR.</span>'); return; }
+  var mask=bits===0?0:(0xFFFFFFFF<<(32-bits))>>>0;
+  var inside=((ip&mask)>>>0)===((base&mask)>>>0);
+  var net=(base&mask)>>>0, bc=(net|(~mask>>>0))>>>0;
+  show('ic-out',(inside?'<b>✓ Inside</b> ':'<b class="err">✗ Not inside</b> ')+'<span class="mono">'+m[1]+'/'+bits+'</span>'+
+    '<div class="kv"><span>Block range</span><span class="mono">'+intToIp(net)+' – '+intToIp(bc)+'</span></div>');
+};
+/* IPv4 <-> integer / hex / binary */
+$('cv-go').onclick=function(){
+  var v=($('cv-in').value||'').trim(), n=null;
+  if(/^\d+\.\d+\.\d+\.\d+$/.test(v)) n=ipToInt(v);
+  else if(/^\d+$/.test(v)){ n=+v; if(n<0||n>4294967295) n=null; }
+  else if(/^0x[0-9a-f]+$/i.test(v)){ n=parseInt(v,16); if(n>4294967295) n=null; }
+  if(n===null){ show('cv-out','<span class="err">Enter an IPv4, an integer (0–4294967295), or 0x-hex.</span>'); return; }
+  n=n>>>0; var oct=[(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255];
+  show('cv-out',
+    '<div class="kv"><span>Dotted</span><b class="mono">'+oct.join('.')+'</b></div>'+
+    '<div class="kv"><span>Integer</span><span class="mono">'+n+'</span></div>'+
+    '<div class="kv"><span>Hex</span><span class="mono">0x'+n.toString(16).toUpperCase().padStart(8,'0')+'</span></div>'+
+    '<div class="kv"><span>Binary</span><span class="mono">'+oct.map(function(o){return o.toString(2).padStart(8,'0');}).join('.')+'</span></div>');
+};
+/* IPv6 expand + compress */
+function v6Expand(s){
+  s=(s||'').trim(); if(!/^[0-9a-f:]+$/i.test(s)||(s.match(/::/g)||[]).length>1) return null;
+  var parts;
+  if(s.indexOf('::')>=0){ var seg=s.split('::'), l=seg[0]?seg[0].split(':'):[], r=seg[1]?seg[1].split(':'):[];
+    var mid=8-l.length-r.length; if(mid<0) return null; parts=l.concat(Array(mid).fill('0')).concat(r);
+  } else parts=s.split(':');
+  if(parts.length!==8) return null;
+  for(var i=0;i<8;i++){ if(!/^[0-9a-f]{1,4}$/i.test(parts[i])) return null; parts[i]=parts[i].toLowerCase().padStart(4,'0'); }
+  return parts;
+}
+function v6Compress(g){
+  var s=g.map(function(p){return p.replace(/^0+/,'')||'0';}), best=-1,bestLen=0;
+  for(var i=0;i<8;i++){ if(s[i]==='0'){ var j=i; while(j<8&&s[j]==='0') j++; if(j-i>bestLen){bestLen=j-i;best=i;} i=j-1; } }
+  if(bestLen<2) return s.join(':');
+  return (s.slice(0,best).join(':'))+'::'+(s.slice(best+bestLen).join(':'));
+}
+$('v6-go').onclick=function(){
+  var g=v6Expand($('v6-in').value);
+  if(!g){ show('v6-out','<span class="err">Enter a valid IPv6 address.</span>'); return; }
+  show('v6-out',
+    '<div class="kv"><span>Expanded</span><b class="mono">'+g.join(':')+'</b></div>'+
+    '<div class="kv"><span>Compressed</span><span class="mono">'+v6Compress(g)+'</span></div>');
+};
+/* MAC / OUI (curated common-vendor set — labelled as partial) */
+var OUI={"005056":"VMware","000C29":"VMware","000569":"VMware","001C14":"VMware","080027":"VirtualBox (Oracle)",
+"00155D":"Microsoft (Hyper-V)","525400":"QEMU / KVM","00163E":"Xen","001C42":"Parallels",
+"B827EB":"Raspberry Pi","DCA632":"Raspberry Pi","E45F01":"Raspberry Pi","2CCF67":"Raspberry Pi","28CDC1":"Raspberry Pi",
+"240AC4":"Espressif (ESP32)","30AEA4":"Espressif (ESP32)","3C71BF":"Espressif (ESP32)","8CAAB5":"Espressif (ESP32)",
+"A020A6":"Espressif (ESP32)","7CDFA1":"Espressif (ESP32)","D8A01D":"Espressif (ESP32)",
+"00000C":"Cisco","000142":"Cisco","0007EB":"Cisco","001A2F":"Cisco",
+"4C5E0C":"MikroTik","CC2DE0":"MikroTik","E48D8C":"MikroTik","6C3B6B":"MikroTik",
+"002722":"Ubiquiti","24A43C":"Ubiquiti","788A20":"Ubiquiti","FCECDA":"Ubiquiti",
+"001451":"Apple","3C0754":"Apple","A85C2C":"Apple","F0DBF8":"Apple",
+"001B21":"Intel","3CA9F4":"Intel","00188B":"Dell"};
+$('mac-go').onclick=function(){
+  var raw=($('mac-in').value||'').replace(/[^0-9a-f]/ig,'').toUpperCase();
+  if(raw.length<12){ show('mac-out','<span class="err">Enter a full 12-hex MAC address.</span>'); return; }
+  raw=raw.slice(0,12);
+  var oui=raw.slice(0,6), vendor=OUI[oui], first=parseInt(raw.slice(0,2),16);
+  show('mac-out',
+    '<div class="kv"><span>Normalized</span><b class="mono">'+raw.match(/.{2}/g).join(':')+'</b></div>'+
+    '<div class="kv"><span>Vendor</span><b>'+(vendor||'— not in common set')+'</b></div>'+
+    '<div class="kv"><span>OUI</span><span class="mono">'+oui.match(/.{2}/g).join(':')+'</span></div>'+
+    '<div class="kv"><span>Cast</span><span>'+((first&1)?'Multicast':'Unicast')+'</span></div>'+
+    '<div class="kv"><span>Admin</span><span>'+((first&2)?'Locally administered':'Globally unique (OUI)')+'</span></div>');
+};
+/* Password / key generator */
+$('pw-go').onclick=function(){
+  var mode=$('pw-mode').value, len=+$('pw-len').value;
+  var sets={strong:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+",
+    alnum:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    wpa:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    hex:"0123456789abcdef", pin:"0123456789"};
+  if(mode==='wpa') len=63;
+  var cs=sets[mode]||sets.strong, a=new Uint32Array(len), out='';
+  crypto.getRandomValues(a);
+  for(var i=0;i<len;i++) out+=cs[a[i]%cs.length];
+  show('pw-out','<b class="mono" style="word-break:break-all">'+out+'</b> <button class="btn ghost" id="pw-copy" style="margin-top:.6rem">Copy</button>');
+  $('pw-copy').onclick=function(){ navigator.clipboard.writeText(out); this.textContent='Copied ✓'; };
+};
+
+/* ---------- Live probes (our server-side backend) ---------- */
+/* POST-only and Turnstile-signed: these run for this page, not for anyone with the URL.
+   Tokens are single-use, so reset the widget right after spending one. */
+var PROBE='https://probe.whatismynetip.com';
+async function probePost(path,body){
+  body.turnstile=tsToken(tsTool); tsReset(tsTool);
+  var r=await fetch(PROBE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return await r.json().catch(function(){return {error:'Probe unavailable.'};});
+}
+$('pc-go').onclick=async function(){
+  var port=parseInt(($('pc-port').value||'').trim(),10);
+  if(!(port>=1&&port<=65535)){ show('pc-out','<span class="err">Enter a port 1–65535.</span>'); return; }
+  show('pc-out','Connecting back to you on port '+port+'…');
+  try{
+    var d=await probePost('/port',{port:port});
+    if(d.error){ show('pc-out','<span class="err">'+d.error+'</span>'); return; }
+    show('pc-out',(d.open?'<b>✓ OPEN</b>':'<b class="err">✗ CLOSED / filtered</b>')+
+      ' — port <b>'+d.port+'</b> on <span class="mono">'+d.ip+'</span><br><span class="sub">'+
+      (d.open?'Reachable from the public internet.':'Nothing is accepting connections here (or a firewall is dropping them).')+'</span>');
+  }catch(e){ show('pc-out','<span class="err">Probe unavailable.</span>'); }
+};
+$('sc-go').onclick=async function(){
+  var host=($('sc-host').value||'').trim();
+  if(!host){ show('sc-out','<span class="err">Enter a hostname.</span>'); return; }
+  show('sc-out','Checking certificate…');
+  try{
+    var d=await probePost('/ssl',{host:host});
+    if(d.valid===false){ show('sc-out','<b class="err">⚠ Invalid</b> — '+(d.error||'certificate problem')); return; }
+    if(d.error){ show('sc-out','<span class="err">'+d.error+'</span>'); return; }
+    var warn=(d.days_left!=null&&d.days_left<=14);
+    var h='<div class="kv"><span>Subject</span><b class="mono">'+(d.subject_cn||'—')+'</b></div>'+
+      '<div class="kv"><span>Issuer</span><span>'+(d.issuer||'—')+'</span></div>'+
+      '<div class="kv"><span>Expires in</span><b'+(warn?' class="err"':'')+'>'+(d.days_left!=null?d.days_left+' days':'—')+'</b></div>'+
+      '<div class="kv"><span>Valid until</span><span class="mono">'+(d.not_after||'—')+'</span></div>'+
+      '<div class="kv"><span>Protocol</span><span>'+(d.protocol||'—')+'</span></div>';
+    if(d.sans&&d.sans.length) h+='<div class="kv"><span>SANs</span><span class="mono" style="text-align:right;max-width:60%">'+d.sans.slice(0,6).join(', ')+(d.sans.length>6?' +'+(d.sans.length-6):'')+'</span></div>';
+    h+='<div class="sub" style="margin-top:.55rem">Want an alert before this expires? → <a href="https://driftwatch.labaccessnow.com" target="_blank" rel="noopener" style="color:var(--accent2)">CertHerd</a></div>';
+    show('sc-out',h);
+  }catch(e){ show('sc-out','<span class="err">Probe unavailable.</span>'); }
+};
+
+/* ---------- DDNS + short link (call the Worker; degrade gracefully) ---------- */
+/* Turnstile anti-bot: two explicit widgets (one per form). Managed mode — invisible for
+   most humans. The token rides in the POST body; the Worker verifies it server-side. */
+var TS_SITEKEY='0x4AAAAAAD23YSrzbsXuJoD6', tsDD=null, tsSH=null, tsTool=null;
+window.onTurnstile=function(){
+  try{
+    tsDD=turnstile.render('#dd-ts',{sitekey:TS_SITEKEY});
+    tsSH=turnstile.render('#sh-ts',{sitekey:TS_SITEKEY});
+    tsTool=turnstile.render('#tool-ts',{sitekey:TS_SITEKEY});
+  }catch(e){}
+};
+function tsToken(id){ try{ return turnstile.getResponse(id)||''; }catch(e){ return ''; } }
+function tsReset(id){ try{ turnstile.reset(id); }catch(e){} }
+async function delShort(slug,token){
+  try{
+    var r=await fetch(API_BASE+'/shorten/'+encodeURIComponent(slug)+'?token='+encodeURIComponent(token),{method:'DELETE'});
+    var d=await r.json().catch(function(){return{};});
+    show('sh-out', r.ok?('Deleted <b>/'+slug+'</b>.'):'<span class="err">'+(d.error||'Delete failed.')+'</span>');
+  }catch(e){ show('sh-out','<span class="err">Delete failed.</span>'); }
+}
+async function api(path,body){
+  var r=await fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var d=await r.json().catch(function(){return{};});
+  if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
+  return d;
+}
+var NOTLIVE='<span class="err">The dynamic-DNS / short-link backend isn\'t deployed yet — it\'s the next build step. The instant tools above work now.</span>';
+$('dd-go').onclick=async function(){
+  var host=$('dd-host').value.trim().toLowerCase(), email=$('dd-email').value.trim();
+  if(!/^[a-z0-9][a-z0-9-]{1,30}$/.test(host)){ show('dd-out','<span class="err">Hostname: 2–31 letters/numbers/hyphens.</span>'); return; }
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)){ show('dd-out','<span class="err">Enter a valid email.</span>'); return; }
+  show('dd-out','Claiming…');
+  try{ var d=await api('/register',{hostname:host,email:email,turnstile:tsToken(tsDD)}); tsReset(tsDD);
+    show('dd-out','<b>Claimed '+host+'.whatismynetip.com</b>\nYour update token has been emailed to <b>'+email+'</b> (check spam if it\'s not there in a minute).\nPoint your router\'s DynDNS client at:\n<span class="mono">https://api.whatismynetip.com/nic/update</span>');
+  }catch(e){ tsReset(tsDD); show('dd-out', /Failed to fetch|NetworkError/.test(String(e))?NOTLIVE:'<span class="err">'+e.message+'</span>'); }
+};
+$('sh-go').onclick=async function(){
+  var url=$('sh-url').value.trim(), slug=$('sh-slug').value.trim().toLowerCase();
+  if(!url){ show('sh-out','<span class="err">Enter a URL or IP:port.</span>'); return; }
+  show('sh-out','Shortening…');
+  try{ var d=await api('/shorten',{target:url,slug:slug||undefined,turnstile:tsToken(tsSH)}); tsReset(tsSH);
+    var link=d.short_url||('https://s.whatismynetip.com/'+d.slug);
+    show('sh-out','<b>'+link+'</b>\n→ '+d.target+(d.manage_token?(
+      '\nDelete token (save it — shown only once): <span class="mono">'+d.manage_token+'</span>'+
+      '\n<a href="#" style="color:var(--bad)" onclick="delShort(\''+d.slug+'\',\''+d.manage_token+'\');return false">Delete this link</a>'):''));
+  }catch(e){ tsReset(tsSH); show('sh-out', /Failed to fetch|NetworkError/.test(String(e))?NOTLIVE:'<span class="err">'+e.message+'</span>'); }
+};
+</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstile&render=explicit" async defer></script>
+</body></html>
